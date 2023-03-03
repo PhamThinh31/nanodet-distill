@@ -119,3 +119,6 @@ work_dirs/
 *.sh~
 pretrained/*
 workspace/*
+
+results/*
+venv*
