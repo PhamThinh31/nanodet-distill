@@ -15,6 +15,7 @@ from .scatter_gather import gather_results, scatter_kwargs
 from .util_mixins import NiceRepr
 from .visualization import Visualizer, overlay_bbox_cv
 from .helpers import *
+from .pytorch_lion import Lion
 
 __all__ = [
     "distance2bbox",
@@ -51,5 +52,7 @@ __all__ = [
     "doIntersect",
     "is_inside_polygon",
     "points2check",
-    "plot_det"
+    "plot_det",
+    "Lion"
+
 ]

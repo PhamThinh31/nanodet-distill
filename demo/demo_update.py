@@ -164,7 +164,7 @@ def main():
     predictor = Predictor(cfg, args.model, logger, device="cuda:0", distill=True)
     logger.log('Press "Esc", "q" or "Q" to exit.')
     current_time = time.localtime()
-    static_guide_points = read_guideline(['./calib/e34/rear_view_guideline_calib.txt'])[0]
+    static_guide_points = read_guideline(['./calib/e34/object_detection_area_front_cam.txt'])[0]
     if args.demo == "image":
         if os.path.isdir(args.path):
             files = get_image_list(args.path)
@@ -186,19 +186,21 @@ def main():
                 break
 
     elif args.demo == "image_folder":
+        # image_list = sorted(glob(os.path.join(args.path,"*.png")))
         # image_list = sorted(glob(os.path.join(args.path,"*.jpeg")))
         # image_list = sorted(glob(os.path.join(args.path,"image_0*")))
-        image_list = sorted(glob(os.path.join(args.path,"*.jpg")))[106:]
+        image_list = sorted(glob(os.path.join(args.path,"*")))
         print(f"Total Frame: {len(image_list)}")
         os.makedirs("./dump", exist_ok=True)
         save_path = f"demo_images_nearby.mp4"
-        vid_writer = imageio.get_writer(save_path, format='mp4', mode='I', fps=5)
+        # vid_writer = imageio.get_writer(save_path, format='mp4', mode='I', fps=5)
         time_accum = 0
         frame_count = 0
         timer = Timer()
 
         mot_tracker = None
         for imp in tqdm(image_list):
+            name = imp.split("/")[-1]
             t0 = time.perf_counter()
             timer.tic()
             frame = cv2.imread(imp)
@@ -233,7 +235,7 @@ def main():
                         bbox = trk.get_state()[0]
                         bbox_contour = rect2poly(bbox.astype(int))
                         iou = polyiou_overlap(Polygon(contour), Polygon(bbox_contour))
-                        print(iou)
+                        # print(iou)
                         if iou > 0:
                             visualize(im, trk, args, contour)
                     result_frame = im
@@ -287,12 +289,12 @@ def main():
                         for p in points_to_check:
                             cv2.circle(im, (int(p[0]),int(p[1])), radius=3, color=(0,128,255), thickness=-1)
                         check_nearby = is_inside_polygon(contour_update, points_to_check)
-                        print(check_nearby)
+                        # print(check_nearby)
 
                         # if iou > 0:
-                        if np.array(check_nearby).mean() > 0.5:
+                        if np.array(check_nearby).mean() > 0.25:
                             valid_rects.append(bbox)
-                            print("\n@@@@@@@@ ", np.array(check_nearby).mean())
+                            # print("\n@@@@@@@@ ", np.array(check_nearby).mean())
                     if len(valid_rects) > 0:
                         im = plot_det(im, valid_rects, color=(255,0,0))
                         distance = [np.linalg.norm(np.array(box[2], box[3]) - np.array((box[2],img_h))) for box in valid_rects]
@@ -314,12 +316,12 @@ def main():
             # mask = shape.astype(bool)
             # out_im[mask] = cv2.addWeighted(online_im_rgb, alpha, shape, 1 - alpha, 0)[mask]
         
-            cv2.imwrite(f"dump/test_{frame_count}.png",out_im)
-            vid_writer.append_data(cv2.cvtColor(out_im,cv2.COLOR_BGR2RGB))
+            cv2.imwrite(f"dump/{name}_frame_{frame_count}.png",out_im)
+            # vid_writer.append_data(cv2.cvtColor(out_im,cv2.COLOR_BGR2RGB))
 
         print(time_accum)
         print("fps: ", frame_count/time_accum)
-        vid_writer.close()
+        # vid_writer.close()
 
 if __name__ == "__main__":
     main()

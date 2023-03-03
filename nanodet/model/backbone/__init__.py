@@ -21,8 +21,11 @@ from .mobilenetv2 import MobileNetV2
 from .repvgg import RepVGG
 from .resnet import ResNet
 from .shufflenetv2 import ShuffleNetV2
+from .shufflenetv2DA import ShuffleNetV2DA
 from .resnest import resnest200
 from .darknet import CSPDarknet
+from .darknetDA import CSPDarknetDA
+from .IAT.global_net import Global_pred
 
 def build_backbone(cfg):
     backbone_cfg = copy.deepcopy(cfg)
@@ -31,6 +34,8 @@ def build_backbone(cfg):
         return ResNet(**backbone_cfg)
     elif name == "ShuffleNetV2":
         return ShuffleNetV2(**backbone_cfg)
+    elif name == "ShuffleNetV2DA":
+        return ShuffleNetV2DA(**backbone_cfg)
     elif name == "GhostNet":
         return GhostNet(**backbone_cfg)
     elif name == "MobileNetV2":
@@ -47,5 +52,7 @@ def build_backbone(cfg):
         return resnest101(pretrained=True,**backbone_cfg)
     elif name == "CSPDarknet":
         return CSPDarknet(**backbone_cfg)
+    elif name == "CSPDarknetDA":
+        return CSPDarknetDA(**backbone_cfg)
     else:
         raise NotImplementedError

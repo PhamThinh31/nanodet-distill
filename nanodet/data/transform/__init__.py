@@ -14,4 +14,7 @@
 
 from .pipeline import Pipeline
 
-__all__ = ["Pipeline"]
+from .pipelineDA import PipelineDA
+
+
+__all__ = ["Pipeline","PipelineDA"]

@@ -16,6 +16,7 @@ import copy
 import warnings
 
 from .coco import CocoDataset
+from .cocoDA import CocoDatasetDA
 from .xml_dataset import XMLDataset
 from .coco_seg import CocoSegDataset
 
@@ -35,6 +36,8 @@ def build_dataset(cfg, mode):
         return XMLDataset(mode=mode, **dataset_cfg)
     elif name == "CocoDataset":
         return CocoDataset(mode=mode, **dataset_cfg)
+    elif name == "CocoDatasetDA":
+        return CocoDatasetDA(mode=mode, **dataset_cfg)
     elif name == "CocoSegDataset":
         return CocoSegDataset(mode=mode, **dataset_cfg)
     elif name == "XMLDataset":

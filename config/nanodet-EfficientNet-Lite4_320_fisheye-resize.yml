@@ -5,7 +5,7 @@
 #           AP_small = 0.152
 #               AP_m = 0.342
 #               AP_l = 0.481
-save_dir: workspace/efficientlite4_320_fisheye-resize-regmax7
+save_dir: workspace/efficientlite4_320_fisheye-resize-night-cleandata-5classes
 model:
   arch:
     name: OneStageDetector
@@ -23,7 +23,7 @@ model:
       num_outs: 3
     head:
       name: NanoDetPlusHead
-      num_classes: 3
+      num_classes: 5
       input_channel: 128
       feat_channels: 128
       stacked_convs: 4
@@ -31,8 +31,8 @@ model:
       # strides: [8, 16, 32]
       strides: [8, 16, 32]
       activation: LeakyReLU
-      # reg_max: 10
-      reg_max: 7
+      reg_max: 10
+      # reg_max: 7
       norm_cfg:
         type: BN
       loss:
@@ -50,20 +50,20 @@ model:
     # Auxiliary head, only use in training time.
     aux_head:
       name: SimpleConvHead
-      num_classes: 3
+      num_classes: 5
       input_channel: 512
       feat_channels: 512
       stacked_convs: 4
       # strides: [8, 16, 32]
       strides: [8, 16, 32]
       activation: LeakyReLU
-      # reg_max: 10
-      reg_max: 7
+      reg_max: 10
+      # reg_max: 7
 data:
   train:
     name: CocoDataset
     img_path: /home/ubuntu/Workspace/datasets/od/fisheye_5class/
-    ann_path: /home/ubuntu/Workspace/datasets/od/fisheye_5class/mix_det/coco_assistants/ws_fs_train_merged.json
+    ann_path: /home/ubuntu/Workspace/datasets/od/fisheye_5class/mix_det/coco_assistants/ws_fs_train_merged_5classes.json
     # image_size: [416,260] #[w,h]1
     image_size: [1280,800] #[w,h]
     input_size: [320,256] #[w,h]
@@ -84,7 +84,7 @@ data:
   val:
     name: CocoDataset
     img_path: /home/ubuntu/Workspace/datasets/od/fisheye_5class/
-    ann_path: /home/ubuntu/Workspace/datasets/od/fisheye_5class/mix_det/coco_assistants/ws_fs_val_merged.json
+    ann_path: /home/ubuntu/Workspace/datasets/od/fisheye_5class/mix_det/coco_assistants/ws_fs_val_merged_5classes.json
     # image_size: [416,260] #[w,h]
     image_size: [1280,800] #[w,h]
     input_size: [320,256] #[w,h]
@@ -93,17 +93,17 @@ data:
     pipeline:
       normalize: [[127.0, 127.0, 127.0], [128.0, 128.0, 128.0]]
 device:
-  gpu_ids: [0]
+  gpu_ids: [0,1,2,3]
   workers_per_gpu: 8
   batchsize_per_gpu: 32
 schedule:
-#  resume:
+  resume:
 #  load_model: YOUR_MODEL_PATH
-  load_model: workspace/efficientlite4_512/model_best/model_best.ckpt
+  # load_model: workspace/efficientlite4_512_coco/model_best/model_best.ckpt
   # load_model: workspace/efficientlite4_320_fisheye-resize/model_best/model_best.ckpt
   optimizer:
     name: SGD
-    lr: 0.01
+    lr: 0.03
     momentum: 0.9
     weight_decay: 0.0001
   warmup:
@@ -115,12 +115,12 @@ schedule:
     name: MultiStepLR
     milestones: [90,110,120,130]
     gamma: 0.1
-  val_intervals: 5
+  val_intervals: 10
 evaluator:
   name: CocoDetectionEvaluator
   save_key: mAP
 
 log:
-  interval: 10
+  interval: 20
 
-class_names: ['person', 'vehicles', 'motocycle']
+class_names: ['person', 'vehicles', 'motocycle', 'dog', 'fire_hydrant']

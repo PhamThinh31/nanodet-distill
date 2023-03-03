@@ -3,6 +3,7 @@ import torch.nn as nn
 import torch.utils.model_zoo as model_zoo
 
 from ..module.activation import act_layers
+from ..backbone.strong_weak_alignment import netD, grad_reverse
 
 model_urls = {
     "shufflenetv2_0.5x": "https://download.pytorch.org/models/shufflenetv2_x0.5-f707e7126e.pth",  # noqa: E501

@@ -128,6 +128,7 @@ class SPPBottleneck(nn.Module):
         self.m = nn.ModuleList(
             [
                 nn.MaxPool2d(kernel_size=ks, stride=1, padding=ks // 2)
+                # nn.MaxPool2d(kernel_size=ks, stride=1, padding='same')
                 for ks in kernel_sizes
             ]
         )

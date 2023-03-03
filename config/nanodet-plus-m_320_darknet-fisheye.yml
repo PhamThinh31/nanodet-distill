@@ -5,7 +5,7 @@
 #           AP_small = 0.106
 #               AP_m = 0.322
 #               AP_l = 0.477
-save_dir: workspace/darknet_320_fisheye-resize-update-regmax
+save_dir: workspace/darknet_320_fisheye-resize-udpate-regmax-addnearby123motvoc-night-cleandata-5classes-adamw
 model:
   weight_averager:
     name: ExpMovingAverager
@@ -34,7 +34,7 @@ model:
       activation: LeakyReLU
     head:
       name: NanoDetPlusHead
-      num_classes: 3
+      num_classes: 5
       input_channel: 80
       feat_channels: 80
       stacked_convs: 2
@@ -60,7 +60,7 @@ model:
     # Auxiliary head, only use in training time.
     aux_head:
       name: SimpleConvHead
-      num_classes: 3
+      num_classes: 5
       input_channel: 160
       feat_channels: 160
       stacked_convs: 4
@@ -72,7 +72,7 @@ data:
   train:
     name: CocoDataset
     img_path: /home/ubuntu/Workspace/datasets/od/fisheye_5class/
-    ann_path: /home/ubuntu/Workspace/datasets/od/fisheye_5class/mix_det/coco_assistants/ws_fs_train_merged.json
+    ann_path: /home/ubuntu/Workspace/datasets/od/fisheye_5class/mix_det/coco_assistants/ws_fs_train_merged_5classes.json
     # image_size: [416,260] #[w,h]
     image_size: [1280,800] #[w,h]
     input_size: [320,256] #[w,h]
@@ -93,10 +93,7 @@ data:
   val:
     name: CocoDataset
     img_path: /home/ubuntu/Workspace/datasets/od/fisheye_5class/
-    # ann_path: /home/ubuntu/Workspace/datasets/od/fisheye_5class/mix_det/coco_assistants/ws_fs_val_merged.json
-    # ann_path: /home/ubuntu/Workspace/datasets/od/fisheye_5class/mix_det/fs_train_nearby23cls.json
-    # ann_path: /home/ubuntu/Workspace/datasets/od/fisheye_5class/mix_det/coco_assistants/ws_fs_train_merged_nearby2.json
-    ann_path: /home/ubuntu/Workspace/datasets/od/fisheye_5class/mix_det/coco_assistants/ws_fs_train_merged_nearby_cam3.json
+    ann_path: /home/ubuntu/Workspace/datasets/od/fisheye_5class/mix_det/coco_assistants/ws_fs_val_merged_5classes.json
     # image_size: [416,260] #[w,h]
     image_size: [1280,800] #[w,h]
     input_size: [320,256] #[w,h]
@@ -105,56 +102,55 @@ data:
     pipeline:
       normalize: [[103.53, 116.28, 123.675], [57.375, 57.12, 58.395]]
 device:
-  gpu_ids: [0]
-  workers_per_gpu: 10
+  gpu_ids: [0,1]
+  workers_per_gpu: 12
   batchsize_per_gpu: 128
 schedule:
   # resume:
-  load_model: workspace/nanodet-plus-m_416_coco_darknet/model_best/model_best.ckpt
-  optimizer:
-    name: SGD
-    lr: 0.03
-    momentum: 0.9
-    weight_decay: 0.0001
-  warmup:
-    name: linear
-    steps: 300
-    ratio: 0.1
-  total_epochs: 135
-  lr_schedule:
-    name: MultiStepLR
-    milestones: [90,110,120,130]
-    gamma: 0.1
-  val_intervals: 10
-evaluator:
-  name: CocoDetectionEvaluator
-  save_key: mAP
-
-log:
-  interval: 50
-
-class_names: ['person', 'vehicles', 'motocycle']
-
-
+  load_model: pretrained/nanodet-plus-m_416.pth
 #   optimizer:
-#     name: AdamW
-#     lr: 0.001
-#     weight_decay: 0.05
+#     name: SGD
+#     lr: 0.03
+#     momentum: 0.9
+#     weight_decay: 0.0001
 #   warmup:
 #     name: linear
-#     steps: 500
-#     ratio: 0.0001
-#   total_epochs: 100
+#     steps: 300
+#     ratio: 0.1
+#   total_epochs: 135
 #   lr_schedule:
-#     name: CosineAnnealingLR
-#     T_max: 300
-#     eta_min: 0.00005
+#     name: MultiStepLR
+#     milestones: [90,110,120,130]
+#     gamma: 0.1
 #   val_intervals: 10
-# grad_clip: 35
 # evaluator:
 #   name: CocoDetectionEvaluator
 #   save_key: mAP
+
 # log:
 #   interval: 50
 
-# class_names: ['person', 'vehicles', 'motocycle']
+# class_names: ['person', 'vehicles', 'motocycle', 'dog', 'fire_hydrant']
+
+  optimizer:
+    name: AdamW
+    lr: 0.0001
+    weight_decay: 0.05
+  warmup:
+    name: linear
+    steps: 500
+    ratio: 0.0001
+  total_epochs: 100
+  lr_schedule:
+    name: CosineAnnealingLR
+    T_max: 200
+    eta_min: 0.00005
+  val_intervals: 10
+grad_clip: 35
+evaluator:
+  name: CocoDetectionEvaluator
+  save_key: mAP
+log:
+  interval: 50
+class_names: ['person', 'vehicles', 'motocycle', 'dog', 'fire_hydrant']
+

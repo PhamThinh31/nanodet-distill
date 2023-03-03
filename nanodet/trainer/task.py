@@ -75,13 +75,13 @@ class TrainingTask(LightningModule):
     @torch.no_grad()
     def predict(self, batch, batch_idx=None, dataloader_idx=None):
         batch = self._preprocess_batch_input(batch)
-        preds, _ = self.forward(batch["img"])
+        preds = self.forward(batch["img"])
         results = self.model.head.post_process(preds, batch)
         return results
 
     def training_step(self, batch, batch_idx):
         batch = self._preprocess_batch_input(batch)
-        preds, _, loss, loss_states = self.model.forward_train(batch)
+        preds, _, loss, loss_states, _ = self.model.forward_train(batch)
 
         # log train losses
         if self.global_step % self.cfg.log.interval == 0:
@@ -115,12 +115,15 @@ class TrainingTask(LightningModule):
     def validation_step(self, batch, batch_idx):
         batch = self._preprocess_batch_input(batch)
         if self.weight_averager is not None:
-            preds, _, loss, loss_states = self.avg_model.forward_train(batch)
+            preds, _, loss, loss_states, _ = self.avg_model.forward_train(batch)
         else:
-            preds, _, loss, loss_states = self.model.forward_train(batch)
+            preds, _, loss, loss_states, _ = self.model.forward_train(batch)
 
         if batch_idx % self.cfg.log.interval == 0:
-            lr = self.optimizers().param_groups[0]["lr"]
+            try:
+                lr = self.optimizers().param_groups[0]["lr"]
+            except:
+                lr = -1
             log_msg = "Val|Epoch{}/{}|Iter{}({})| lr:{:.2e}| ".format(
                 self.current_epoch + 1,
                 self.cfg.schedule.total_epochs,

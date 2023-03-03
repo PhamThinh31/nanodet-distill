@@ -16,6 +16,7 @@ import copy
 import warnings
 
 from .nanodet_plus import NanoDetPlus
+from .nanodet_plus_DA import NanoDetPlusDA
 from .one_stage_detector import OneStageDetector
 
 
@@ -37,6 +38,8 @@ def build_model(model_cfg):
         )
     elif name == "NanoDetPlus":
         model = NanoDetPlus(**model_cfg.arch)
+    elif name == "NanoDetPlusDA":
+        model = NanoDetPlusDA(**model_cfg.arch)
     else:
         raise NotImplementedError
     return model

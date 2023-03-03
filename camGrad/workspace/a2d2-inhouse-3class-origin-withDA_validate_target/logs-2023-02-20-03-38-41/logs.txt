@@ -1,0 +1,1 @@
+[NanoDet][02-20 03:38:49]INFO: Loaded model weight from /home/ubuntu/Workspace/thinhplg-dev/domain_adaptation/od/nanodet_v2/workspace/a2d2-inhouse-3class-origin-withDA_validate_target/model_best/model_best.ckpt

@@ -18,6 +18,7 @@ import os
 import onnx
 import onnxsim
 import torch
+from collections import OrderedDict
 
 from nanodet.model.arch import build_model
 from nanodet.util import Logger, cfg, load_config, load_model_weight
@@ -31,10 +32,21 @@ def generate_ouput_names(head_cfg):
     return cls_names + dis_names
 
 
-def main(config, model_path, output_path, input_shape=(320, 320)):
+def main(config, model_path, output_path, input_shape=(256, 320),distill=True):
     logger = Logger(-1, config.save_dir, False)
     model = build_model(config.model)
     checkpoint = torch.load(model_path, map_location=lambda storage, loc: storage)
+
+    if distill:
+        new_state_dict = OrderedDict()
+        for k, v in checkpoint["state_dict"].items():
+            if not k.startswith('teacher_model') and "conv1x1" not in k:
+                new_state_dict[k] = v
+        new_checkpoint = dict(state_dict=new_state_dict)
+        load_model_weight(model, new_checkpoint, logger)
+    else:
+        load_model_weight(model, checkpoint, logger)
+
     load_model_weight(model, checkpoint, logger)
     if config.model.arch.backbone.name == "RepVGG":
         deploy_config = config.model
@@ -54,7 +66,7 @@ def main(config, model_path, output_path, input_shape=(320, 320)):
         verbose=True,
         keep_initializers_as_inputs=True,
         opset_version=11,
-        input_names=["data"],
+        input_names=["images"],
         output_names=["output"],
     )
     logger.log("finished exporting onnx ")
