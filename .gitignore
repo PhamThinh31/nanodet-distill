@@ -123,4 +123,3 @@ workspace/*
 venv*
 data/*
 results/*
-data
